@@ -64,14 +64,32 @@ builder.Services.AddIdentity<User, Role>(Options =>
 
 }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
+//-----------------------------------------------------------------------------------------------------
+// Add Secret.json
+builder.Configuration.SetBasePath(Directory.GetCurrentDirectory());
+builder.Configuration.AddJsonFile("Secret.json", optional: false, reloadOnChange: true);
+builder.Services.Configure<JwtModel>(builder.Configuration.GetSection("JwtModel"));
 
+Microsoft.AspNetCore.Authentication.AuthenticationBuilder authenticationBuilder = builder.Services.AddAuthentication(options =>
+{
+	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+	var jwtModel = builder.Configuration.GetSection("JwtModel").Get<JwtModel>();
 
-
-
-
-
-
-
+	options.TokenValidationParameters = new TokenValidationParameters
+	{
+		ValidateIssuer = true,
+		ValidateAudience = true,
+		ValidateLifetime = true,
+		ValidateIssuerSigningKey = true,
+		ValidIssuer = jwtModel.Issuer,
+		ValidAudience = jwtModel.Audience,
+		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtModel.SecretKey)),
+		ClockSkew = TimeSpan.Zero
+	};
+});
 
 builder.Services.AddControllers();
 
