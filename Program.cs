@@ -43,6 +43,36 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 //--------------------------------------------------------------------------------------------------------
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+//----------------------------------------------------------------------------------------------------
+
+builder.Services.AddIdentity<User, Role>(Options =>
+{
+	Options.Password.RequiredLength = 5;
+	Options.Password.RequireNonAlphanumeric = false;
+	Options.Password.RequiredUniqueChars = 3;
+	Options.Password.RequireDigit = true;
+	Options.Password.RequireLowercase = true;
+	Options.Password.RequireUppercase = true;
+
+	Options.Tokens.AuthenticatorTokenProvider = "JwtBearer";
+
+	Options.User.RequireUniqueEmail = true;
+
+}).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
+
+
+
+
+
+
+
+
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
