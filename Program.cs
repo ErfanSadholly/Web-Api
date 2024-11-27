@@ -1,3 +1,5 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +8,9 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using Web_Api.Account_Models;
 using Web_Api.AppData;
+using Web_Api.DbModels;
 using Web_Api.Jwt;
+using Web_Api.Validations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,6 +94,9 @@ Microsoft.AspNetCore.Authentication.AuthenticationBuilder authenticationBuilder 
 		ClockSkew = TimeSpan.Zero
 	};
 });
+
+builder.Services.AddValidatorsFromAssemblyContaining<PhoneBookDTOValidation>();
+builder.Services.AddFluentValidationAutoValidation();
 
 builder.Services.AddControllers();
 
